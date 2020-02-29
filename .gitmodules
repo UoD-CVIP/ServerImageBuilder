@@ -10,3 +10,6 @@
 [submodule "TensorflowBuild"]
 	path = TensorflowBuild
 	url = ./TensorflowBuild/
+[submodule "MatlabBuild"]
+	path = MatlabBuild
+	url = ./MatlabBuild/

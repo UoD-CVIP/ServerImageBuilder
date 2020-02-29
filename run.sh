@@ -8,13 +8,14 @@ function remove_images () {
   docker rmi $( docker images | grep ${1} | awk '{print $3}')
 }
 
-declare -a BASE_IMAGES
+declare -a TF_BASE_IMAGES
 TF_VERSIONS=$(cat ./tensorflow_versions.txt | sort -V)
+
+declare -a PT_BASE_IMAGES
 PYTORCH_VERSIONS=$(cat ./pytorch_image_tags.txt | sort -V)
 
-### First clean up in case of a prior failed build
-remove_images tensorflow/tensorflow
-remove_images pytorch/pytorch
+declare -a ML_BASE_IMAGES
+MATLAB_VERSIONS=$(cat ./matlab_image_tags.txt | sort)
 
 ### Tensorflow images
 for TF_VERSION in ${TF_VERSIONS}
@@ -29,6 +30,14 @@ do
   IMAGE="pytorch/pytorch:${TAG}"
   BASE_IMAGES="${BASE_IMAGES} ${IMAGE}"
 done
+
+for TAG in ${MATLAB_VERSIONS}
+do
+  IMAGE="nvcr.io/partners/matlab:${TAG}"
+  BASE_IMAGES="${BASE_IMAGES} ${IMAGE}"
+done
+
+
 
 ## Run the image builds
 for BASE_IMAGE in ${BASE_IMAGES}
