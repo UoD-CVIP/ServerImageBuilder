@@ -1,0 +1,12 @@
+[submodule "JupyterBuild"]
+	path = JupyterBuild
+	url = ./BaseBuild
+[submodule "BaseBuild"]
+	path = BaseBuild
+	url = ./BaseBuild/
+[submodule "PyTorchBuild"]
+	path = PyTorchBuild
+	url = ./PyTorchBuild/
+[submodule "TensorflowBuild"]
+	path = TensorflowBuild
+	url = ./TensorflowBuild/
