@@ -8,68 +8,106 @@ function remove_images () {
   docker rmi $( docker images | grep ${1} | awk '{print $3}')
 }
 
-declare -a TF_BASE_IMAGES
-TF_VERSIONS=$(cat ./tensorflow_versions.txt | sort -V)
+function populate_image_list () {
+  declare -a BASE
+  local VERS=$(cat ${1} | sort -V)
+  for VER in ${VERS}
+  do
+    local IMAGE="${2}:${VER}"
+    local BASE="${BASE} ${IMAGE}"
+  done
+  echo ${BASE}
+}
 
-declare -a PT_BASE_IMAGES
-PYTORCH_VERSIONS=$(cat ./pytorch_image_tags.txt | sort -V)
-
-declare -a ML_BASE_IMAGES
-MATLAB_VERSIONS=$(cat ./matlab_image_tags.txt | sort)
-
-### Tensorflow images
-for TF_VERSION in ${TF_VERSIONS}
+## Run the image builds for all frameworks
+for FRAMEWORK in ${@}
 do
-  IMAGE="tensorflow/tensorflow:${TF_VERSION}-gpu-py3"
-  BASE_IMAGES="${BASE_IMAGES} ${IMAGE}"
+
+  log "Building ${FRAMEWORK} images."
+  if [[ ${FRAMEWORK} == "tensorflow" ]]
+  then
+    BASE_IMAGES=$( populate_image_list ./tensorflow_image_tags.txt "tensorflow/tensorflow" )
+    BUILD_DIR=./TensorflowBuild
+    MATLAB_BUILD_FLAG=false
+
+  elif [[ ${FRAMEWORK} == "pytorch" ]]
+  then
+    BASE_IMAGES=$( populate_image_list ./pytorch_image_tags.txt "pytorch/pytorch" )
+    BUILD_DIR=./PyTorchBuild
+    MATLAB_BUILD_FLAG=false
+
+  elif [[ ${FRAMEWORK} == "matlab" ]]
+  then
+    BASE_IMAGES=$( populate_image_list ./matlab_image_tags.txt "nvcr.io/partners/matlab" )
+    BUILD_DIR=./MatlabBuild
+    MATLAB_BUILD_FLAG=true
+  else
+    exit 1
+  fi
+
+  ### Iterate through each image we need to build for each of ${IMAGES}
+  for BASE_IMAGE in ${BASE_IMAGES}
+  do
+
+    #if [[ $IMAGE == "MATLAB" ]]
+    #then
+    #  FRAMEWORK=$( echo ${BASE_IMAGE} | cut -f3 -d"/")
+    #else
+    #  FRAMEWORK=$( echo ${BASE_IMAGE} | cut -f1 -d"/")
+    #fi
+
+    TAG=$(echo ${BASE_IMAGE} | cut -f2 -d":" | cut -f1 -d"-")
+    CVIP_TAG=$(echo ${TAG} | cut -f1 -d"-")
+    CVIP_IMAGE=uodcvip/${FRAMEWORK}:${CVIP_TAG}
+
+    log "Building ${CVIP_IMAGE} from ${BASE_IMAGE}"
+
+    docker pull ${BASE_IMAGE} \
+    && log "${BASE_IMAGE} pull success" \
+    || log "${BASE_IMAGE} pull failure" \
+
+    ### Start the build process
+    # === If any one of these commands fails, all subsequent build stages *must* fail
+    # === Hence the chaining of all docker commands below
+    docker build \
+      --rm \
+      --build-arg BASE_CONTAINER=${BASE_IMAGE} \
+      -t tmp/base \
+      ./BaseBuild/ \
+    && log "${CVIP_IMAGE} BaseBuild success" \
+    || log "${CVIP_IMAGE} BaseBuild failure" \
+    && \
+    docker build \
+      --rm \
+      --build-arg MATLAB_BUILD_ARG=${MATLAB_BUILD_FLAG} \
+      -t tmp/jupyter \
+     ./JupyterBuild/ \
+    && log "${CVIP_IMAGE} JupyterBuild success" \
+    || log "${CVIP_IMAGE} JupyterBuild failure" \
+    && \
+    docker build \
+      --rm \
+      -t ${CVIP_IMAGE} \
+      ${BUILD_DIR} \
+      && log "${CVIP_IMAGE} ${BUILD_DIR} success" \
+      || log "${CVIP_IMAGE} ${BUILD_DIR} failure" \
+    && \
+    docker push ${CVIP_IMAGE} \
+    && log "${CVIP_IMAGE} push success" \
+    || log "${CVIP_IMAGE} push failure"
+
+    # clean up
+    docker container prune -f
+    docker image prune -f
+
+    remove_images tmp/jupyter
+    remove_images tmp/base
+    remove_images ${FRAMEWORK}
+
+  done
 done
-
-### Pytorch images
-for TAG in ${PYTORCH_VERSIONS}
-do
-  IMAGE="pytorch/pytorch:${TAG}"
-  BASE_IMAGES="${BASE_IMAGES} ${IMAGE}"
-done
-
-for TAG in ${MATLAB_VERSIONS}
-do
-  IMAGE="nvcr.io/partners/matlab:${TAG}"
-  BASE_IMAGES="${BASE_IMAGES} ${IMAGE}"
-done
-
-
-
-## Run the image builds
-for BASE_IMAGE in ${BASE_IMAGES}
-do
-  TAG=$(echo ${BASE_IMAGE} | cut -f2 -d":" | cut -f1 -d"-")
-  FRAMEWORK=$( echo ${BASE_IMAGE} | cut -f1 -d"/")
-  CVIP_TAG=$(echo ${TAG} | cut -f1 -d"-")
-  CVIP_IMAGE=uodcvip/${FRAMEWORK}:${CVIP_TAG}
-
-  docker pull ${BASE_IMAGE}
-
-  docker build \
-    --build-arg BASE_CONTAINER=${BASE_IMAGE} \
-    -t ${CVIP_IMAGE} \
-    ./Builds/ \
-    && log "${CVIP_IMAGE} successful build from ${BASE_IMAGE}" \
-    || log "${CVIP_IMAGE} failed build from ${BASE_IMAGE}"
-
-
-  docker rm ${BASE_IMAGE}
-
-  docker push ${CVIP_IMAGE} \
-  && log "${CVIP_IMAGE} successful push" \
-  || log "${CVIP_IMAGE} failed to push"
-
-  # clean up
-  docker container prune -f
-  docker image prune -f
-
-  ### Final clean up in case of a failed build
-  remove_images tensorflow/tensorflow
-  remove_images pytorch/pytorch
-
-done
+### Final clean up in case of a failed build
+remove_images tensorflow/tensorflow
+remove_images pytorch/pytorch
+remove_images nvcr.io/partners/matlab
 
