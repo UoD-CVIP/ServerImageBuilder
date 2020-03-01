@@ -1,0 +1,7 @@
+## TODO
+
+-- Refactor run into a functional
+---- build function
+---- create_image_vars function
+---- then run each with specified commands in main
+---- etc.
