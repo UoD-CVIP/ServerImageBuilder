@@ -1,15 +1,15 @@
 [submodule "JupyterBuild"]
 	path = JupyterBuild
-	url = ./BaseBuild
+	url = git@github.com:UoD-CVIP/ServerJupyterBuild.git
 [submodule "BaseBuild"]
 	path = BaseBuild
-	url = ./BaseBuild/
+	url = git@github.com:UoD-CVIP/ServerBaseBuild.git
 [submodule "PyTorchBuild"]
 	path = PyTorchBuild
-	url = ./PyTorchBuild/
+	url = git@github.com:UoD-CVIP/ServerPyTorchBuild.git
 [submodule "TensorflowBuild"]
 	path = TensorflowBuild
-	url = ./TensorflowBuild/
+	url = git@github.com:UoD-CVIP/ServerTensorflowBuild.git
 [submodule "MatlabBuild"]
 	path = MatlabBuild
-	url = ./MatlabBuild/
+	url = git@github.com:UoD-CVIP/ServerMatlabBuild.git
