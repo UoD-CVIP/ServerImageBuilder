@@ -10,8 +10,9 @@ We currently have 3 functional GPU images for:
 - PyTorch (1.4.0)
 - Matlab (r2018a -> r2019b)
 
+The CVIP versions of these images live at `https://hub.docker.com/uodcvip/`. 
+This means the DL servers do not have to rely on some centralised build process.
 Additional CPU only images can be pulled directly from the JupyterHub DockerHub repo. 
-
 TODO: we may want to start building some custom CPU only images for languages like `C++` or `java` etc.
 
 ### Building images
