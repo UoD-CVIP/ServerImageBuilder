@@ -26,19 +26,19 @@ do
   log "Building ${FRAMEWORK} images."
   if [[ ${FRAMEWORK} == "tensorflow" ]]
   then
-    BASE_IMAGES=$( populate_image_list ./tensorflow_image_tags.txt "tensorflow/tensorflow" )
+    BASE_IMAGES=$( populate_image_list ./tensorflow_image_tags.txt.prod "tensorflow/tensorflow" )
     BUILD_DIR=./TensorflowBuild
     MATLAB_BUILD_FLAG=false
 
   elif [[ ${FRAMEWORK} == "pytorch" ]]
   then
-    BASE_IMAGES=$( populate_image_list ./pytorch_image_tags.txt "pytorch/pytorch" )
+    BASE_IMAGES=$( populate_image_list ./pytorch_image_tags.txt.prod "pytorch/pytorch" )
     BUILD_DIR=./PyTorchBuild
     MATLAB_BUILD_FLAG=false
 
   elif [[ ${FRAMEWORK} == "matlab" ]]
   then
-    BASE_IMAGES=$( populate_image_list ./matlab_image_tags.txt "nvcr.io/partners/matlab" )
+    BASE_IMAGES=$( populate_image_list ./matlab_image_tags.txt.prod "nvcr.io/partners/matlab" )
     BUILD_DIR=./MatlabBuild
     MATLAB_BUILD_FLAG=true
   else
