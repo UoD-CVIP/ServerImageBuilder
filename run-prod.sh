@@ -1,11 +1,34 @@
 #!/usr/bin/env bash
 
-function log () {
-  echo $(date)" --- ${1}" >> build.log
+function info () {
+  echo $(date)" --- ${1}" | logger
+}
+
+function logger () {
+  tee build.log
 }
 
 function remove_images () {
-  docker rmi $( docker images | grep ${1} | awk '{print $3}')
+  info "Attempting to remove image ${1}"
+  docker rmi $( docker images | grep ${1} | awk '{print $3}') \
+    && info "${1} image removed" \
+    || info "${1} image NOT removed, trying to force..." \
+  && docker rmi -f $( docker images | grep ${1} | awk '{print $3}') \
+    && info "${1} image removed" \
+    || info "${1} image not removed, you'll have to remove it manually."
+}
+
+function clean_up_images () {
+  info "Running clean up"
+  docker container prune -f
+  docker image prune -f
+  remove_images tmp/jupyter
+  remove_images tmp/base
+  for image in ${@}
+  do
+    remove_images $image
+  done
+  info "Finished clean up"
 }
 
 function populate_image_list () {
@@ -19,109 +42,65 @@ function populate_image_list () {
   echo ${BASE}
 }
 
-## Run the image builds for all frameworks
-for FRAMEWORK in ${@}
-do
-
-  log "Building ${FRAMEWORK} images."
-  if [[ ${FRAMEWORK} == "tensorflow" ]]
-  then
-    BASE_IMAGES=$( populate_image_list ./tensorflow_image_tags.txt.prod "tensorflow/tensorflow" )
-    BUILD_DIR=./TensorflowBuild
-    MATLAB_BUILD_FLAG=false
-
-  elif [[ ${FRAMEWORK} == "pytorch" ]]
-  then
-    BASE_IMAGES=$( populate_image_list ./pytorch_image_tags.txt.prod "pytorch/pytorch" )
-    BUILD_DIR=./PyTorchBuild
-    MATLAB_BUILD_FLAG=false
-
-  elif [[ ${FRAMEWORK} == "matlab" ]]
-  then
-    BASE_IMAGES=$( populate_image_list ./matlab_image_tags.txt.prod "nvcr.io/partners/matlab" )
-    BUILD_DIR=./MatlabBuild
-    MATLAB_BUILD_FLAG=true
-  else
-    exit 1
-  fi
-
-  ### Iterate through each image we need to build for each of ${IMAGES}
+function build_loop () {
+  info "++++ Starting build process."
   for BASE_IMAGE in ${BASE_IMAGES}
   do
+    export TAG=$(echo ${BASE_IMAGE} | cut -f2 -d":" | cut -f1 -d"-")
+    export CVIP_TAG=$(echo ${TAG} | cut -f1 -d"-")
+    export CVIP_IMAGE=uodcvip/${FRAMEWORK}:${CVIP_TAG}
 
-    if [[ ${FRAMEWORK} == "matlab" ]]
-    then
-      echo "+_+ LIC: ${2}"
-      LICENSE="${2}"
-    else
-      LICENSE=""
-    fi
-    #then
-    #  FRAMEWORK=$( echo ${BASE_IMAGE} | cut -f3 -d"/")
-    #else
-    #  FRAMEWORK=$( echo ${BASE_IMAGE} | cut -f1 -d"/")
-    #fi
-
-    TAG=$(echo ${BASE_IMAGE} | cut -f2 -d":" | cut -f1 -d"-")
-    CVIP_TAG=$(echo ${TAG} | cut -f1 -d"-")
-    CVIP_IMAGE=uodcvip/${FRAMEWORK}:${CVIP_TAG}
-
-    log "Building ${CVIP_IMAGE} from ${BASE_IMAGE}"
-
-    docker pull ${BASE_IMAGE} \
-    && log "${BASE_IMAGE} pull success" \
-    || log "${BASE_IMAGE} pull failure" \
-
-    ### Start the build process
-    # === If any one of these commands fails, all subsequent build stages *must* fail
-    # === Hence the chaining of all docker commands below
-    docker build \
+    info "++ Building ${CVIP_IMAGE} from ${BASE_IMAGE}"
+    DOCKER_BUILDKIT=1 docker build \
       --rm \
+      --pull \
+      --target ${FRAMEWORK} \
+      --tag ${CVIP_IMAGE} \
       --build-arg BASE_CONTAINER=${BASE_IMAGE} \
-      -t tmp/base \
-      ./BaseBuild/ \
-    && log "${CVIP_IMAGE} BaseBuild success" \
-    || log "${CVIP_IMAGE} BaseBuild failure" \
-  &&
-    docker build \
-      --rm \
-      --build-arg MATLAB_BUILD_ARG=${MATLAB_BUILD_FLAG} \
-      -t tmp/jupyter \
-     ./JupyterBuild/ \
-    && log "${CVIP_IMAGE} JupyterBuild success" \
-    || log "${CVIP_IMAGE} JupyterBuild failure" \
-  &&
-    if [[ ${FRAMEWORK} == "matlab" ]]
-    then
-      docker build \
-        --rm \
-        --build-arg MLM_LICENSE="${LICENSE}" \
-        -t ${CVIP_IMAGE} \
-        ${BUILD_DIR}
-    else
-      docker build \
-        --rm \
-        -t ${CVIP_IMAGE} \
-        ${BUILD_DIR}
-    fi && log "${CVIP_IMAGE} ${BUILD_DIR} success" \
-        || log "${CVIP_IMAGE} ${BUILD_DIR} failure" \
-  && \
+      --build-arg MLM_LICENSE=${LICENSE} \
+      ./ \
+    && info "+ Build SUCCESS for ${CVIP_IMAGE}" \
+    || info "+ Build FAILURE for ${CVIP_IMAGE}"
+
     docker push ${CVIP_IMAGE} \
-    && log "${CVIP_IMAGE} push success" \
-    || log "${CVIP_IMAGE} push failure"
+    && info "+ ${CVIP_IMAGE} push success" \
+    || info "+ ${CVIP_IMAGE} push failure"
 
-    # clean up
-    docker container prune -f
-    docker image prune -f
-
-    remove_images tmp/jupyter
-    remove_images tmp/base
-    remove_images ${FRAMEWORK}
+    clean_up_images ${BASE_IMAGE}
 
   done
-done
-### Final clean up in case of a failed build
-remove_images tensorflow/tensorflow
-remove_images pytorch/pytorch
-remove_images nvcr.io/partners/matlab
+}
 
+
+## Run the image builds for all frameworks
+export FRAMEWORK=${1}
+
+if [[ ${FRAMEWORK} == "tensorflow" ]]
+then
+    export BASE_IMAGES=$( populate_image_list ./tensorflow_image_tags.txt.prod "tensorflow/tensorflow" )
+    BUILD_DIR=./TensorflowBuild
+    LICENSE=""
+
+elif [[ ${FRAMEWORK} == "pytorch" ]]
+then
+    export BASE_IMAGES=$( populate_image_list ./pytorch_image_tags.txt.prod "pytorch/pytorch" )
+    BUILD_DIR=./PyTorchBuild
+    LICENSE=""
+
+elif [[ ${FRAMEWORK} == "matlab" ]]
+then
+    export BASE_IMAGES=$( populate_image_list ./matlab_image_tags.txt.prod "nvcr.io/partners/matlab" )
+    BUILD_DIR=./MatlabBuild
+    if [[ ${2} == "" ]]
+    then
+      echo "For a 'matlab' build you need to provide a valid network license address."
+      exit 100
+    else
+      LICENSE="${2}"
+   fi
+else
+    echo "${FRAMEWORK} does not exist."
+    exit 100
+fi
+
+build_loop
