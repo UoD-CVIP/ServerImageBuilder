@@ -176,9 +176,6 @@ LABEL maintainer="Mike Robeson <mrobeson@dundee.ac.uk>"
 # If the Conda path is preprended, conda packages will be preferred
 # and we don't want that at build time
 ENV PATH="/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/conda/bin:"
-RUN git clone  https://github.com/NVIDIA/apex.git ./
-RUN pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./apex \
- && rm -rf ./apex
 
 # TODO: Vision requires torch version >= 1.4
 # Do *not* run `--upgrade` here as it will upgrade pytorch.
