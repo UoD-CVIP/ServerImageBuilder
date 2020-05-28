@@ -1,0 +1,14 @@
+FROM tmp/jupyter
+
+LABEL maintainer="Mike Robeson <mrobeson@dundee.ac.uk>"
+
+# Hack the path because pytorch base image uses conda
+# == If the Conda path is preprended, conda packages will be preferred
+# == and we don't want that at build time
+ENV PATH="/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/conda/bin:"
+
+USER root
+
+RUN python3 -m pip install torchvision torchaudio
+
+USER $NB_USER:users
