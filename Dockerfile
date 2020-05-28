@@ -177,10 +177,11 @@ LABEL maintainer="Mike Robeson <mrobeson@dundee.ac.uk>"
 # and we don't want that at build time
 ENV PATH="/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/conda/bin:"
 
+# TODO: Vision requires torch version >= 1.4
 # Do *not* run `--upgrade` here as it will upgrade pytorch.
-USER root
-RUN python3 -m pip install torchvision torchaudio
-USER $NB_USER:users
+#USER root
+#RUN python3 -m pip install torchvision torchaudio
+#USER $NB_USER:users
 
 ### === TENSORFLOW TARGET
 FROM jupyter AS tensorflow

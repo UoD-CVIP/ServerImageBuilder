@@ -5,25 +5,19 @@ function info () {
 }
 
 function logger () {
-  tee build.log
+  tee -a build.log
 }
 
 function remove_images () {
   info "Attempting to remove image ${1}"
   docker rmi $( docker images | grep ${1} | awk '{print $3}') \
-    && info "${1} image removed" \
-    || info "${1} image NOT removed, trying to force..." \
-  && docker rmi -f $( docker images | grep ${1} | awk '{print $3}') \
-    && info "${1} image removed" \
-    || info "${1} image not removed, you'll have to remove it manually."
+  && docker rmi -f $( docker images | grep ${1} | awk '{print $3}')
 }
 
 function clean_up_images () {
   info "Running clean up"
   docker container prune -f
   docker image prune -f
-  remove_images tmp/jupyter
-  remove_images tmp/base
   for image in ${@}
   do
     remove_images $image
