@@ -1,8 +1,0 @@
-[submodule "JupyterBuild"]
-	path = JupyterBuild
-	url = git@github.com:UoD-CVIP/ServerJupyterBuild.git
-        branch = master
-[submodule "BaseBuild"]
-	path = BaseBuild
-	url = git@github.com:UoD-CVIP/ServerBaseBuild.git
-        branch = master
