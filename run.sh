@@ -49,7 +49,13 @@ do
   for BASE_IMAGE in ${BASE_IMAGES}
   do
 
-    #if [[ $IMAGE == "MATLAB" ]]
+    if [[ ${FRAMEWORK} == "matlab" ]]
+    then
+      echo "+_+ LIC: ${2}"
+      LICENSE="${2}"
+    else
+      LICENSE=""
+    fi
     #then
     #  FRAMEWORK=$( echo ${BASE_IMAGE} | cut -f3 -d"/")
     #else
@@ -76,7 +82,7 @@ do
       ./BaseBuild/ \
     && log "${CVIP_IMAGE} BaseBuild success" \
     || log "${CVIP_IMAGE} BaseBuild failure" \
-    && \
+  &&
     docker build \
       --rm \
       --build-arg MATLAB_BUILD_ARG=${MATLAB_BUILD_FLAG} \
@@ -84,14 +90,22 @@ do
      ./JupyterBuild/ \
     && log "${CVIP_IMAGE} JupyterBuild success" \
     || log "${CVIP_IMAGE} JupyterBuild failure" \
-    && \
-    docker build \
-      --rm \
-      -t ${CVIP_IMAGE} \
-      ${BUILD_DIR} \
-      && log "${CVIP_IMAGE} ${BUILD_DIR} success" \
-      || log "${CVIP_IMAGE} ${BUILD_DIR} failure" \
-    && \
+  &&
+    if [[ ${FRAMEWORK} == "matlab" ]]
+    then
+      docker build \
+        --rm \
+        --build-arg MLM_LICENSE="${LICENSE}" \
+        -t ${CVIP_IMAGE} \
+        ${BUILD_DIR}
+    else
+      docker build \
+        --rm \
+        -t ${CVIP_IMAGE} \
+        ${BUILD_DIR}
+    fi && log "${CVIP_IMAGE} ${BUILD_DIR} success" \
+        || log "${CVIP_IMAGE} ${BUILD_DIR} failure" \
+  && \
     docker push ${CVIP_IMAGE} \
     && log "${CVIP_IMAGE} push success" \
     || log "${CVIP_IMAGE} push failure"
