@@ -9,20 +9,20 @@ function logger () {
 }
 
 function remove_images () {
-  info "Attempting to remove image ${1}"
+  info "= Attempting to remove image ${1}"
   docker rmi $( docker images | grep ${1} | awk '{print $3}') \
   && docker rmi -f $( docker images | grep ${1} | awk '{print $3}')
 }
 
 function clean_up_images () {
-  info "Running clean up"
+  info "= Running clean up"
   docker container prune -f
   docker image prune -f
   for image in ${@}
   do
     remove_images $image
   done
-  info "Finished clean up"
+  info "= Finished clean up"
 }
 
 function populate_image_list () {
@@ -37,7 +37,7 @@ function populate_image_list () {
 }
 
 function build_loop () {
-  info "++++ Starting build process."
+  info "++ Starting build process."
   for BASE_IMAGE in ${BASE_IMAGES}
   do
     export TAG=$(echo ${BASE_IMAGE} | cut -f2 -d":" | cut -f1 -d"-")
@@ -53,12 +53,12 @@ function build_loop () {
       --build-arg BASE_CONTAINER=${BASE_IMAGE} \
       --build-arg MLM_LICENSE=${LICENSE} \
       ./ \
-    && info "+ Build SUCCESS for ${CVIP_IMAGE}" \
-    || info "+ Build FAILURE for ${CVIP_IMAGE}"
+    && info "++++ Build SUCCESS for ${CVIP_IMAGE}" \
+    || info "++++ Build FAILURE for ${CVIP_IMAGE}"
 
     docker push ${CVIP_IMAGE} \
-    && info "+ ${CVIP_IMAGE} push success" \
-    || info "+ ${CVIP_IMAGE} push failure"
+    && info "++++ ${CVIP_IMAGE} push success" \
+    || info "++++ ${CVIP_IMAGE} push failure"
 
     clean_up_images ${BASE_IMAGE}
 
