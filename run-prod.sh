@@ -5,7 +5,7 @@ function info () {
 }
 
 function logger () {
-  tee build.log
+  tee -a build.log
 }
 
 function remove_images () {
