@@ -56,7 +56,7 @@ function build_loop () {
       --target ${FRAMEWORK} \
       --tag ${CVIP_IMAGE} \
       --build-arg BASE_CONTAINER=${BASE_IMAGE} \
-      --build-arg MLM_LICENSE=${LICENSE} \
+      --build-arg MLM_LICENSE="${LICENSE}" \
       ./ \
     && info "+ Build SUCCESS for ${CVIP_IMAGE}" \
     || info "+ Build FAILURE for ${CVIP_IMAGE}"
@@ -74,6 +74,7 @@ function build_loop () {
 ## Run the image builds for all frameworks
 export BUILD_TYPE=${1}
 export FRAMEWORK=${2}
+export LICENSE=${3}
 
 if [[ -z ${BUILD_TYPE} ]]
 then
@@ -96,12 +97,10 @@ elif [[ ${FRAMEWORK} == "matlab" ]]
 then
     export BASE_IMAGES=$( populate_image_list ./images/base/matlab_image_tags.txt.${BUILD_TYPE} "nvcr.io/partners/matlab" )
     BUILD_DIR=./MatlabBuild
-    if [[ ${2} == "" ]]
+    if [[ ${LICENSE} == "" ]]
     then
       echo "For a 'matlab' build you need to provide a valid network license address."
       exit 100
-    else
-      LICENSE="${2}"
    fi
 else
     echo "${FRAMEWORK} does not exist."
