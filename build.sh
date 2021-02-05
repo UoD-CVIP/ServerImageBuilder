@@ -22,8 +22,6 @@ function clean_up_images () {
   info "Running clean up"
   docker container prune -f
   docker image prune -f
-  remove_images tmp/jupyter
-  remove_images tmp/base
   for image in ${@}
   do
     remove_images $image
@@ -73,23 +71,29 @@ function build_loop () {
 
 
 ## Run the image builds for all frameworks
-export FRAMEWORK=${1}
+export BUILD_TYPE=${1}
+export FRAMEWORK=${2}
 
+if [[ -z ${BUILD_TYPE} ]]
+then
+    echo "Please provide the file extension for the images to build (*.txt.???)."
+    exit 100
+fi
 if [[ ${FRAMEWORK} == "tensorflow" ]]
 then
-    export BASE_IMAGES=$( populate_image_list ./tensorflow_image_tags.txt.dev "tensorflow/tensorflow" )
+    export BASE_IMAGES=$( populate_image_list ./images/tensorflow_image_tags.txt.${BUILD_TYPE} "tensorflow/tensorflow" )
     BUILD_DIR=./TensorflowBuild
     LICENSE=""
 
 elif [[ ${FRAMEWORK} == "pytorch" ]]
 then
-    export BASE_IMAGES=$( populate_image_list ./pytorch_image_tags.txt.dev "pytorch/pytorch" )
+    export BASE_IMAGES=$( populate_image_list ./images/pytorch_image_tags.txt.${BUILD_TYPE} "pytorch/pytorch" )
     BUILD_DIR=./PyTorchBuild
     LICENSE=""
 
 elif [[ ${FRAMEWORK} == "matlab" ]]
 then
-    export BASE_IMAGES=$( populate_image_list ./matlab_image_tags.txt.dev "nvcr.io/partners/matlab" )
+    export BASE_IMAGES=$( populate_image_list ./images/matlab_image_tags.txt.${BUILD_TYPE} "nvcr.io/partners/matlab" )
     BUILD_DIR=./MatlabBuild
     if [[ ${2} == "" ]]
     then
