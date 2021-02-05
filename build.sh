@@ -81,19 +81,19 @@ then
 fi
 if [[ ${FRAMEWORK} == "tensorflow" ]]
 then
-    export BASE_IMAGES=$( populate_image_list ./images/tensorflow_image_tags.txt.${BUILD_TYPE} "tensorflow/tensorflow" )
+    export BASE_IMAGES=$( populate_image_list ./images/base/tensorflow_image_tags.txt.${BUILD_TYPE} "tensorflow/tensorflow" )
     BUILD_DIR=./TensorflowBuild
     LICENSE=""
 
 elif [[ ${FRAMEWORK} == "pytorch" ]]
 then
-    export BASE_IMAGES=$( populate_image_list ./images/pytorch_image_tags.txt.${BUILD_TYPE} "pytorch/pytorch" )
+    export BASE_IMAGES=$( populate_image_list ./images/base/pytorch_image_tags.txt.${BUILD_TYPE} "pytorch/pytorch" )
     BUILD_DIR=./PyTorchBuild
     LICENSE=""
 
 elif [[ ${FRAMEWORK} == "matlab" ]]
 then
-    export BASE_IMAGES=$( populate_image_list ./images/matlab_image_tags.txt.${BUILD_TYPE} "nvcr.io/partners/matlab" )
+    export BASE_IMAGES=$( populate_image_list ./images/base/matlab_image_tags.txt.${BUILD_TYPE} "nvcr.io/partners/matlab" )
     BUILD_DIR=./MatlabBuild
     if [[ ${2} == "" ]]
     then
