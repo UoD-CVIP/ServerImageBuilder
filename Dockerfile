@@ -75,6 +75,7 @@ RUN apt update \
 
 RUN apt autoremove -yqq
 
+
 ### ==== Jupyter Base image set up
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
@@ -137,6 +138,11 @@ RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su \
       ; else useradd -m -s $SHELL -N -u $NB_UID $NB_USER \
       ; fi \
    && chmod g+w /etc/passwd 
+
+# Let user accounts in the users group install via apt.
+RUN mkdir -p /etc/sudoers.d/ \
+ && echo '%users ALL = NOPASSWD : /usr/bin/apt-get , /usr/bin/apt' > /etc/sudoers.d/apt \
+ && chmod 0444 /etc/sudoers.d/apt
 
 # Set up the user's environment
 USER $NB_USER:users
