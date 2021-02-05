@@ -98,6 +98,10 @@ RUN python3 /get-pip.py --force-reinstall
 RUN python3 -m pip install -U -r /tmp/jupyterhub-requirements.txt \
  && rm -f /tmp/*-requirements.txt
 
+# Add the bash kernel
+# https://github.com/takluyver/bash_kernel
+RUN python3 -m pip install bash_kernel && python3 -m bash_kernel.install
+
 # Configure container environment
 # N.B. We actually *need* to use the jovyan `user` at build time.
 # The `start.sh` will actually overide the user when we use SystemUserSpawner
@@ -122,7 +126,9 @@ RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashr
 
 # Create NB_USER wtih name jovyan user with UID=1000 and in the 'users' group
 # and make sure these dirs are writable by the `users` group.
+
 # If this is the matlab image then modify the existing `matlab` user
+# elif this is an existing jupyter image then don't try to add the jovyan user
 RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su \
    && sed -i.bak -e 's/^%admin/#%admin/' /etc/sudoers \
    && sed -i.bak -e 's/^%sudo/#%sudo/' /etc/sudoers \
@@ -149,6 +155,55 @@ COPY Jupyter/start-notebook.sh /usr/local/bin/
 COPY Jupyter/start-singleuser.sh /usr/local/bin/
 
 ### =========== BUILD TARGETS ============ ####
+
+### ==== CPU TARGET: BASH, PYTHON and R only
+FROM jupyter as cpubase
+USER root
+# Required dependencies
+RUN apt update && apt install -yqq \
+  r-base \
+  r-base-dev \
+  libzmq3-dev \
+  libcurl4-openssl-dev \
+  libssl-dev \
+  libxml2 \
+  libxml2-dev \
+  libxml2-utils \
+  jupyter-core \
+  jupyter-client \
+  libudunits2-dev \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
+# Install the R jupyter kernel 
+# https://irkernel.github.io/installation/
+# pbdZMQ doesn't install properly on ubuntu for some unknown reason, so install from github source.
+# https://github.com/RBigData/pbdZMQ#installation
+RUN R -e "options(warn=2); install.packages('devtools'); library(devtools); install_github('RBigData/pbdZMQ');"
+RUN R -e "options(warn=2); install.packages(c('IRdisplay', 'IRkernel')); IRkernel::installspec(user = FALSE);"
+
+# Install some helpful start packages.
+# https://towardsdatascience.com/top-r-libraries-for-data-science-9b24f658e243
+#RUN R -e "options(warn=2); install.packages('ggplot2');" && rm -rf /tmp/*
+#RUN R -e "options(warn=2); install.packages('RCurl');" && rm -rf /tmp/*
+#RUN R -e "options(warn=2); install.packages('rmarkdown');" && rm -rf /tmp/*
+#RUN R -e "options(warn=2); install.packages('plotly');" && rm -rf /tmp/*
+#RUN R -e "options(warn=2); install.packages('tidymodels');" && rm -rf /tmp/*
+#RUN R -e "options(warn=2); install.packages('dplyr');" && rm -rf /tmp/*
+#RUN R -e "options(warn=2); install.packages('esquisse');" && rm -rf /tmp/*
+#RUN R -e "options(warn=2); install.packages('lubridate');" && rm -rf /tmp/*
+#RUN R -e "options(warn=2); install.packages('knitr');" && rm -rf /tmp/*
+#RUN R -e "options(warn=2); install.packages('mlr');" && rm -rf /tmp/*
+#RUN R -e "options(warn=2); install.packages('DT');" && rm -rf /tmp/*
+#RUN R -e "options(warn=2); install.packages('Rcrawler');" && rm -rf /tmp/*
+
+# Install a bunch of python3 packages for stuff and things
+# TODO: requirements.txt
+RUN python3 -m pip install matplotlib scipy numpy pandas bokeh patsy nltk tqdm h5py beautifulsoup4 cython scikit-learn
+
+# Gives users access to R's system installation directory
+RUN chown -R ${NB_USER}:users /usr/local/lib/R/site-library/
+USER ${NB_USER}
 
 ### ==== MATLAB TARGET
 FROM jupyter as matlab
@@ -185,10 +240,11 @@ ENV PATH="/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/b
 #USER $NB_USER:users
 
 ### === TENSORFLOW TARGET
-FROM jupyter AS tensorflow
+FROM jupyter as tensorflow
 LABEL maintainer="Mike Robeson <mrobeson@dundee.ac.uk>"
 
 # Force users to only user as much GPU memory as their graph actualy needs
 # Otherwise it's 1 active tf user session per GPU.
 ENV TF_FORCE_GPU_ALLOW_GROWTH true
+
 
