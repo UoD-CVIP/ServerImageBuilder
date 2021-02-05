@@ -37,8 +37,10 @@ RUN apt-get update \
     gcc \
     g++ \
     make \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+ && apt clean \
+ && rm -rf /var/lib/apt/lists/* \
+ && apt autoremove -yqq
+
 
 # https://joshtronic.com/2018/05/08/how-to-install-nodejs-10-on-ubuntu-1804-lts/
 # Install nodejs 10.0
@@ -70,10 +72,9 @@ RUN apt update \
     libpng-dev \
     libtiff-dev \
     libdc1394-22-dev \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-
-RUN apt autoremove -yqq
+ && apt clean \
+ && rm -rf /var/lib/apt/lists/* \
+ && apt autoremove -yqq
 
 
 ### ==== Jupyter Base image set up
@@ -182,8 +183,9 @@ RUN apt update && apt install -yqq \
   jupyter-core \
   jupyter-client \
   libudunits2-dev \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+ && apt clean \
+ && rm -rf /var/lib/apt/lists/* \
+ && apt autoremove -yqq
 
 # Install the R jupyter kernel 
 # https://irkernel.github.io/installation/
