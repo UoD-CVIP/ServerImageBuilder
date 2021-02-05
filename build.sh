@@ -13,7 +13,7 @@ function remove_images () {
   docker rmi $( docker images | grep ${1} | awk '{print $3}') \
     && info "${1} image removed" \
     || info "${1} image NOT removed, trying to force..." \
-  && docker rmi -f $( docker images | grep ${1} | awk '{print $3}') \
+  || docker rmi -f $( docker images | grep ${1} | awk '{print $3}') \
     && info "${1} image removed" \
     || info "${1} image not removed, you'll have to remove it manually."
 }
@@ -26,6 +26,7 @@ function clean_up_images () {
   do
     remove_images $image
   done
+  docker builder prune --force
   info "Finished clean up"
 }
 
