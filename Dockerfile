@@ -94,7 +94,11 @@ RUN chmod +x /tini
 # This includes the jupyterhub notebook server, jupyter lab etc.
 ADD Jupyter/jupyterhub-requirements.txt /tmp/
 
-RUN curl https://bootstrap.pypa.io/get-pip.py -o /get-pip.py
+# Tensorflow 1.13.1 uses Python 3.5.2 which is EOL
+RUN if [ "$(python3 --version)" = "Python 3.5.2" ] \
+  ; then echo "YES" && curl https://bootstrap.pypa.io/3.5/get-pip.py -o /get-pip.py \
+  ; else echo "NO" && curl https://bootstrap.pypa.io/get-pip.py -o /get-pip.py \
+  ; fi
 RUN python3 /get-pip.py --force-reinstall
 RUN python3 -m pip install -U -r /tmp/jupyterhub-requirements.txt \
  && rm -f /tmp/*-requirements.txt
