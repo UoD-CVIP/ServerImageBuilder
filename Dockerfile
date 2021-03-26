@@ -102,7 +102,8 @@ RUN if [ "$(python3 --version)" = "Python 3.5.2" ] \
   ; fi
 RUN python3 /get-pip.py --force-reinstall
 RUN python3 -m pip install -U -r /tmp/jupyterhub-requirements.txt \
- && rm -f /tmp/*-requirements.txt
+ && rm -f /tmp/*-requirements.txt \
+ && rm -f /get-pip.py
 
 # Add the bash kernel
 # https://github.com/takluyver/bash_kernel
@@ -155,8 +156,17 @@ ARG PYTHON_VERSION=default
 ENV JUPYTER_ENABLE_LAB=true
 WORKDIR $HOME
 
-# Configure container startup and settings
+# Configure container startup and settings.
+
+# Additional directories can be added to CHOWN_EXTRA to give shared user access
+# /start-notebook.sh calls /start.sh which goes off and modifys directory permissions / uid / gid
+# during container startup etc.
+ARG CHOWN_EXTRA=/shares
+ENV CHOWN_EXTRA ${CHOWN_EXTRA}
+RUN mkdir -p ${CHOWN_EXTRA}
+
 EXPOSE 8888
+
 ENTRYPOINT ["/tini", "-g", "--"]
 CMD ["start-notebook.sh"]
 
@@ -214,7 +224,7 @@ RUN R -e "options(warn=2); install.packages(c('IRdisplay', 'IRkernel')); IRkerne
 RUN python3 -m pip install matplotlib scipy numpy pandas bokeh patsy nltk tqdm h5py beautifulsoup4 cython scikit-learn
 
 # Gives users access to R's system installation directory
-RUN chown -R ${NB_USER}:users /usr/local/lib/R/site-library/
+ENV CHOWN_EXTRA "${CHOWN_EXTRA},/usr/local/lib/R/site-library/"
 USER ${NB_USER}
 
 ### ==== MATLAB TARGET
