@@ -44,7 +44,7 @@ RUN apt-get update \
 
 # https://joshtronic.com/2018/05/08/how-to-install-nodejs-10-on-ubuntu-1804-lts/
 # Install nodejs 10.0
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt install -yqq nodejs
 
 # Install yarn dependency
