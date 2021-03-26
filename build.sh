@@ -113,7 +113,8 @@ function build_setup () {
 
 if [[ ${2} == "all" ]]
 then
-  for framework in "tensorflow pytorch cpu"
+  export ALL="tensorflow pytorch cpu"
+  for framework in ${ALL}
   do
         export BUILD_TYPE=${1}
         export FRAMEWORK=${framework}
