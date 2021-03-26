@@ -71,43 +71,60 @@ function build_loop () {
   done
 }
 
+function build_setup () {
+    ## Run the image builds for a framework
 
-## Run the image builds for all frameworks
-export BUILD_TYPE=${1}
-export FRAMEWORK=${2}
-export LICENSE=${3}
-
-if [[ -z ${BUILD_TYPE} ]]
-then
-    echo "Please provide the file extension for the images to build (*.txt.???)."
-    exit 100
-fi
-if [[ ${FRAMEWORK} == "cpu" ]]
-then
-    export BASE_IMAGES=$( populate_image_list ./images/base/cpu_image_tags.txt.${BUILD_TYPE} "ubuntu" )
-    LICENSE=""
-
-elif [[ ${FRAMEWORK} == "tensorflow" ]]
-then
-    export BASE_IMAGES=$( populate_image_list ./images/base/tensorflow_image_tags.txt.${BUILD_TYPE} "tensorflow/tensorflow" )
-    LICENSE=""
-
-elif [[ ${FRAMEWORK} == "pytorch" ]]
-then
-    export BASE_IMAGES=$( populate_image_list ./images/base/pytorch_image_tags.txt.${BUILD_TYPE} "pytorch/pytorch" )
-    LICENSE=""
-
-elif [[ ${FRAMEWORK} == "matlab" ]]
-then
-    export BASE_IMAGES=$( populate_image_list ./images/base/matlab_image_tags.txt.${BUILD_TYPE} "nvcr.io/partners/matlab" )
-    if [[ ${LICENSE} == "" ]]
+    if [[ -z ${BUILD_TYPE} ]]
     then
-      echo "For a 'matlab' build you need to provide a valid network license address."
-      exit 100
-   fi
+        echo "Please provide the file extension for the images to build (*.txt.???)."
+        exit 100
+    fi
+    if [[ ${FRAMEWORK} == "cpu" ]]
+    then
+        export BASE_IMAGES=$( populate_image_list ./images/base/cpu_image_tags.txt.${BUILD_TYPE} "ubuntu" )
+        LICENSE=""
+
+    elif [[ ${FRAMEWORK} == "tensorflow" ]]
+    then
+        export BASE_IMAGES=$( populate_image_list ./images/base/tensorflow_image_tags.txt.${BUILD_TYPE} "tensorflow/tensorflow" )
+        LICENSE=""
+
+    elif [[ ${FRAMEWORK} == "pytorch" ]]
+    then
+        export BASE_IMAGES=$( populate_image_list ./images/base/pytorch_image_tags.txt.${BUILD_TYPE} "pytorch/pytorch" )
+        LICENSE=""
+
+    elif [[ ${FRAMEWORK} == "matlab" ]]
+    then
+        export BASE_IMAGES=$( populate_image_list ./images/base/matlab_image_tags.txt.${BUILD_TYPE} "nvcr.io/partners/matlab" )
+        if [[ ${LICENSE} == "" ]]
+        then
+          echo "For a 'matlab' build you need to provide a valid network license address."
+          exit 100
+       fi
+    else
+        echo "${FRAMEWORK} does not exist."
+        exit 100
+    fi
+
+    build_loop
+}
+
+
+if [[ ${2} == "all" ]]
+then
+  for framework in "tensorflow pytorch cpu"
+  do
+        export BUILD_TYPE=${1}
+        export FRAMEWORK=${framework}
+        export LICENSE=${3}
+
+        build_setup
+  done
 else
-    echo "${FRAMEWORK} does not exist."
-    exit 100
+        export BUILD_TYPE=${1}
+        export FRAMEWORK=${2}
+        export LICENSE=${3}
+        build_setup
 fi
 
-build_loop
