@@ -53,6 +53,7 @@ function build_loop () {
     DOCKER_BUILDKIT=1 docker build \
       --rm \
       --pull \
+      --no-cache \
       --target ${FRAMEWORK} \
       --tag ${CVIP_IMAGE} \
       --build-arg BASE_CONTAINER=${BASE_IMAGE} \
