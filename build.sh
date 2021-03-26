@@ -81,22 +81,24 @@ then
     echo "Please provide the file extension for the images to build (*.txt.???)."
     exit 100
 fi
-if [[ ${FRAMEWORK} == "tensorflow" ]]
+if [[ ${FRAMEWORK} == "cpu" ]]
+then
+    export BASE_IMAGES=$( populate_image_list ./images/base/cpu_image_tags.txt.${BUILD_TYPE} "ubuntu" )
+    LICENSE=""
+
+elif [[ ${FRAMEWORK} == "tensorflow" ]]
 then
     export BASE_IMAGES=$( populate_image_list ./images/base/tensorflow_image_tags.txt.${BUILD_TYPE} "tensorflow/tensorflow" )
-    BUILD_DIR=./TensorflowBuild
     LICENSE=""
 
 elif [[ ${FRAMEWORK} == "pytorch" ]]
 then
     export BASE_IMAGES=$( populate_image_list ./images/base/pytorch_image_tags.txt.${BUILD_TYPE} "pytorch/pytorch" )
-    BUILD_DIR=./PyTorchBuild
     LICENSE=""
 
 elif [[ ${FRAMEWORK} == "matlab" ]]
 then
     export BASE_IMAGES=$( populate_image_list ./images/base/matlab_image_tags.txt.${BUILD_TYPE} "nvcr.io/partners/matlab" )
-    BUILD_DIR=./MatlabBuild
     if [[ ${LICENSE} == "" ]]
     then
       echo "For a 'matlab' build you need to provide a valid network license address."
