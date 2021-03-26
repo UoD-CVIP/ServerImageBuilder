@@ -176,7 +176,7 @@ COPY Jupyter/start-singleuser.sh /usr/local/bin/
 ### =========== BUILD TARGETS ============ ####
 
 ### ==== CPU TARGET: BASH, PYTHON and R only
-FROM jupyter as cpubase
+FROM jupyter as cpu
 USER root
 # Required dependencies
 RUN apt update && apt install -yqq \
