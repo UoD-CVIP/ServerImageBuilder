@@ -150,20 +150,18 @@ RUN mkdir -p /etc/sudoers.d/ \
  && echo '%users ALL = NOPASSWD : /usr/bin/apt-get , /usr/bin/apt' > /etc/sudoers.d/apt \
  && chmod 0444 /etc/sudoers.d/apt
 
+
+# Additional directories can be added to CHOWN_EXTRA to give shared user access
+RUN mkdir -p /shares
+
 # Set up the user's environment
 USER $NB_USER:users
 ARG PYTHON_VERSION=default
 ENV JUPYTER_ENABLE_LAB=true
+ENV CHOWN_EXTRA ${CHOWN_EXTRA}
 WORKDIR $HOME
 
 # Configure container startup and settings.
-
-# Additional directories can be added to CHOWN_EXTRA to give shared user access
-# /start-notebook.sh calls /start.sh which goes off and modifys directory permissions / uid / gid
-# during container startup etc.
-ARG CHOWN_EXTRA=/shares
-ENV CHOWN_EXTRA ${CHOWN_EXTRA}
-RUN mkdir -p ${CHOWN_EXTRA}
 
 EXPOSE 8888
 
