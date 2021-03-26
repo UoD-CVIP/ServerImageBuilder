@@ -110,6 +110,11 @@ function build_setup () {
     build_loop
 }
 
+function system_cleanup () {
+    docker container prune -f
+    docker image prune -f
+    docker builder prune -f
+}
 
 if [[ ${2} == "all" ]]
 then
@@ -119,7 +124,6 @@ then
         export BUILD_TYPE=${1}
         export FRAMEWORK=${framework}
         export LICENSE=${3}
-
         build_setup
   done
 else
@@ -128,4 +132,4 @@ else
         export LICENSE=${3}
         build_setup
 fi
-
+system_cleanup
