@@ -165,7 +165,9 @@ WORKDIR $HOME
 
 EXPOSE 8888
 
-ENTRYPOINT ["/tini", "-g", "--"]
+# Use tini -s to sub reap when tini won't be running as PID 1 (we use --pid=host at runtime)
+# use tini -g to process groups to make sure subprocess close on exit.
+ENTRYPOINT ["/tini", "-g", "-s", "--"]
 CMD ["start-notebook.sh"]
 
 # Add local files as late as possible to avoid cache busting
