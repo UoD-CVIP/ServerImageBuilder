@@ -158,7 +158,7 @@ RUN mkdir -p /shares
 USER $NB_USER:users
 ARG PYTHON_VERSION=default
 ENV JUPYTER_ENABLE_LAB=true
-ENV CHOWN_EXTRA ${CHOWN_EXTRA}
+ENV CHOWN_EXTRA /shares
 WORKDIR $HOME
 
 # Configure container startup and settings.
