@@ -152,13 +152,18 @@ RUN mkdir -p /etc/sudoers.d/ \
 
 
 # Additional directories can be added to CHOWN_EXTRA to give shared user access
-RUN mkdir -p /shares
+RUN mkdir -p /shares/local/tensorboard && chown -R ${NB_UID}:${NB_GID} /shares/local/tensorboard
+RUN mkdir -p /shares/local/cvip && chown -R ${NB_UID}:${NB_GID} /shares/local/cvip
+RUN mkdir -p /shares/network/share && chown -R ${NB_UID}:${NB_GID} /shares/network/share
+RUN mkdir -p /shares/network/studentshare && chown -R ${NB_UID}:${NB_GID} /shares/network/studentshare
+ENV CHOWN_EXTRA="/shares/local/tensorboard,/shares/local/cvip,/shares/network/share,/shares/network/studentshare"
+
 
 # Set up the user's environment
 USER $NB_USER:users
 ARG PYTHON_VERSION=default
 ENV JUPYTER_ENABLE_LAB=true
-ENV CHOWN_EXTRA ${CHOWN_EXTRA}
+ENV CHOWN_EXTRA="/shares/local/tensorboard,/shares/local/cvip,/shares/network/share,/shares/network/studentshare"
 WORKDIR $HOME
 
 # Configure container startup and settings.
@@ -168,9 +173,10 @@ EXPOSE 8888
 # Use tini -s to sub reap when tini won't be running as PID 1 (we use --pid=host at runtime)
 # use tini -g to process groups to make sure subprocess close on exit.
 ENTRYPOINT ["/tini", "-g", "-s", "--"]
-CMD ["start-notebook.sh"]
+CMD ["entrypoint.sh"]
 
 # Add local files as late as possible to avoid cache busting
+COPY Jupyter/entrypoint.sh /usr/local/bin/
 COPY Jupyter/start.sh /usr/local/bin/
 COPY Jupyter/start-notebook.sh /usr/local/bin/
 COPY Jupyter/start-singleuser.sh /usr/local/bin/
