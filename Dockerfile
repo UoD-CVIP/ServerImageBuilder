@@ -181,7 +181,7 @@ RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su \
 # Let user accounts in the "users" group to use sudo for apt commands ONLY.
 
 RUN mkdir -p /etc/sudoers.d/ \
- && echo '%users ALL = NOPASSWD : /usr/bin/apt-get , /usr/bin/apt' > /etc/sudoers.d/apt \
+ && echo '%users ALL = NOPASSWD : /usr/bin/apt-get , /usr/bin/apt, /usr/bin/apt-key, /usr/bin/add-apt-repository' > /etc/sudoers.d/apt \
  && chmod 0444 /etc/sudoers.d/apt
 
 
