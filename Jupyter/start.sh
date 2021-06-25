@@ -99,9 +99,46 @@ if [ $(id -u) == 0 ] ; then
     # Add $CONDA_DIR/bin to sudo secure_path
     sed -r "s#Defaults\s+secure_path=\"([^\"]+)\"#Defaults secure_path=\"\1:$CONDA_DIR/bin\"#" /etc/sudoers | grep secure_path > /etc/sudoers.d/path
 
+    echo "Setting up container's python and bash paths correctly."
+    # MR 2021-06-24
+    # Add .local/bin to the user's path so that they can use binaries install with pip from a terminal
+    export PATH="${PATH}:/home/${NB_USER}/.local/bin/"
+
+    # MR 2021-06-24
+    # Add /opt/conda/bin to handle pytorch container's conda pip
+    export PATH="${PATH}:/opt/conda/bin/"
+
+    # MR 2021-06-24
+    # Add .local/lib/python* to the user's path so pip finds packages properly in a terminal
+    PYTHON_LOCAL_LIB=/home/${NB_USER}/.local/lib/python*/site-packages/
+    export PYTHON_PATH="${PYTHON_PATH}:${PYTHON_LOCAL_LIB}"
+
     # Exec the command as NB_USER with the PATH and the rest of
     # the environment preserved
     run-hooks /usr/local/bin/before-notebook.d
+
+    # MR 2021-06-24
+    # Add SSH access to containers
+    echo "Configuring SSH credentials..."
+    # We allow BOTH password and ssh public keys, so check for both and add them if required.
+    if [[ ! -z ${SSH_PASSWORD} ]];
+    then
+        USER_PASSWORD=${SSH_PASSWORD:-$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-8};echo;)}
+        echo "${NB_USER}:${USER_PASSWORD}" | chpasswd
+        chown root:"${NB_USER}" /etc/shadow
+    fi
+    if [[ ! -z ${SSH_KEY} ]];
+    then
+        echo "${SSH_KEY}" >> /ssh/authorized_keys
+    fi
+    echo "Finished configuring SSH credentials..."
+    echo "Starting SSH daemon service..."
+    /usr/sbin/sshd
+    echo "Started SSH daemon."
+
+    # ensure variables passed to docker container are also exposed to ssh sessions
+    env | grep _ >> /etc/environment
+
     echo "Executing the command: ${cmd[@]}"
     exec sudo -E -H -u $NB_USER PATH=$PATH XDG_CACHE_HOME=/home/$NB_USER/.cache PYTHONPATH=${PYTHONPATH:-} "${cmd[@]}"
 else

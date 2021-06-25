@@ -55,14 +55,34 @@ RUN apt-get update \
     gcc \
     g++ \
     make \
+    openssh-server \
  && apt clean \
  && rm -rf /var/lib/apt/lists/* \
  && apt autoremove -yqq
 
+# configure and enable ssh access
+# don't put config inside /home/ as that conflicts with /home/NB_USER
+RUN sed -i /etc/ssh/sshd_config \
+ -e 's/#PermitRootLogin.*/PermitRootLogin no/' \
+ -e 's/#PubkeyAuthentication.*/PubkeyAuthentication yes/' \
+ -e 's/#RSAAuthentication.*/RSAAuthentication yes/'  \
+ -e 's/#PasswordAuthentication.*/PasswordAuthentication yes/' \
+ -e 's/PasswordAuthentication.*/PasswordAuthentication yes/' \
+ -e 's/#SyslogFacility.*/SyslogFacility AUTH/' \
+ -e 's/#LogLevel.*/LogLevel INFO/' \
+ -e 's|#AuthorizedKeysFile.*|AuthorizedKeysFile /ssh/authorized_keys|' \
+ -e 's|#UserKnownHostsFile.*|UserKnownHostsFile /ssh/knownhosts/|' \
+ -e 's/#PermitTunnel.*/PermitTunnel yes/' \
+ -e 's/#AllowTcpForwarding.*/AllowTcpForwarding yes/' \
+ -e 's/#AllowAgentForwarding.*/AllowAgentForwarding yes/' \
+ && mkdir /var/run/sshd /ssh/ \
+ && touch /ssh/authorized_keys
+RUN service ssh start && ssh-keygen -A
+EXPOSE 22
 
 # Install nodejs 10.0
 # https://joshtronic.com/2018/05/08/how-to-install-nodejs-10-on-ubuntu-1804-lts/
-
+# TODO: node 10 is EOL
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 RUN apt install -yqq nodejs
 
