@@ -81,12 +81,19 @@ function build_setup () {
     fi
     if [[ ${FRAMEWORK} == "cpu" ]]
     then
-        export BASE_IMAGES=$( populate_image_list ./images/base/cpu_image_tags.txt.${BUILD_TYPE} "ubuntu" )
+        export BASE_IMAGES=$( populate_image_list ./images/base/cpu_image_tags.txt.${BUILD_TYPE} "jupyter/datascience-notebook" )
         LICENSE=""
-
+    elif [[ ${FRAMEWORK} == "java" ]]
+    then
+        export BASE_IMAGES=$( populate_image_list ./images/base/java_image_tags.txt.${BUILD_TYPE} "jbindinga/java-notebook" )
+        LICENSE=""
     elif [[ ${FRAMEWORK} == "tensorflow" ]]
     then
         export BASE_IMAGES=$( populate_image_list ./images/base/tensorflow_image_tags.txt.${BUILD_TYPE} "tensorflow/tensorflow" )
+        LICENSE=""
+    elif [[ ${FRAMEWORK} == "rapidsai" ]]
+    then
+        export BASE_IMAGES=$( populate_image_list ./images/base/rapidsai_image_tags.txt.${BUILD_TYPE} "ubuntu" )
         LICENSE=""
 
     elif [[ ${FRAMEWORK} == "pytorch" ]]
@@ -118,7 +125,7 @@ function system_cleanup () {
 
 if [[ ${2} == "all" ]]
 then
-  export ALL="tensorflow pytorch cpu"
+  export ALL="tensorflow pytorch rapidsai cpu java"
   for framework in ${ALL}
   do
         export BUILD_TYPE=${1}
