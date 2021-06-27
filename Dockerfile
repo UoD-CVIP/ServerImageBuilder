@@ -229,7 +229,7 @@ LABEL maintainer="Mike Robeson <mrobeson@dundee.ac.uk>"
 # https://github.com/takluyver/bash_kernel
 
 ADD Jupyter/jupyterhub-requirements.txt /tmp/
-RUN ${CONDA_PIP} install --force-reinstall -r /tmp/jupyterhub-requirements.txt \
+RUN ${CONDA_BIN} install -yq --force-reinstall --file /tmp/jupyterhub-requirements.txt \
  && ${CONDA_BIN} install -yq -c conda-forge bash_kernel \
  && ${CONDA_BIN} clean -yaq
 
