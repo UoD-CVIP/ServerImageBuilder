@@ -105,12 +105,12 @@ if [ $(id -u) == 0 ] ; then
     export PATH="${PATH}:/home/${NB_USER}/.local/bin/"
 
     # MR 2021-06-24
-    # Add /opt/conda/bin to handle pytorch container's conda pip
-    export PATH="${PATH}:/opt/conda/bin/"
+    # Add /opt/conda/bin to path to make it the default target for executables like jupyter lab
+    export PATH="/opt/conda/bin:${PATH}"
 
     # MR 2021-06-24
     # Add .local/lib/python* to the user's path so pip finds packages properly in a terminal
-    PYTHON_LOCAL_LIB=/home/${NB_USER}/.local/lib/python*/site-packages/
+    PYTHON_LOCAL_LIB=/home/${NB_USER}/.local/lib/python*/site-packages
     export PYTHON_PATH="${PYTHON_PATH}:${PYTHON_LOCAL_LIB}"
 
     # Exec the command as NB_USER with the PATH and the rest of
