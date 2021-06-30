@@ -230,6 +230,7 @@ LABEL maintainer="Mike Robeson <mrobeson@dundee.ac.uk>"
 
 ADD Jupyter/jupyterhub-requirements.txt /tmp/
 RUN ${CONDA_PIP} install -r /tmp/jupyterhub-requirements.txt \
+ && ${CONDA_PIP} install --force-reinstall prompt-toolkit ipython \
  && ${CONDA_BIN} install -yq -c conda-forge bash_kernel \
  && ${CONDA_BIN} clean -yaq
 
