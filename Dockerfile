@@ -222,18 +222,21 @@ LABEL maintainer="Mike Robeson <mrobeson@dundee.ac.uk>"
 
 # Install python requirements for jupyter
 # -
-# we have to force-reinstall because there's a nasty bug with python3.6 and the prompt_toolkit
-# package
+# All of these requirements *MUST* be installed from pypi (/opt/conda/bin/pip) because:
+#
+# (a) conda does not have suitable versions that we need e.g. conda will install broken 
+# dependencies like prompt_toolkit 1.0.0 when we need pypi's prompt-toolkit 3.x
+#
+# (b) the bash kernel from conda-forge installs the jupyter dependencies under conda, not system pip,
+# which causes conflicts when the notebooks attempt to run.
 # -
 # Also add the bash kernel
 # https://github.com/takluyver/bash_kernel
 
 ADD Jupyter/jupyterhub-requirements.txt /tmp/
 RUN ${CONDA_PIP} install -r /tmp/jupyterhub-requirements.txt \
- && ${CONDA_PIP} install --force-reinstall prompt-toolkit ipython \
- && ${CONDA_BIN} install -yq -c conda-forge bash_kernel \
+ && ${CONDA_PIP} install bash_kernel && /opt/conda/bin/python -m bash_kernel.install \
  && ${CONDA_BIN} clean -yaq
-
 
 ####################################################################################################
 ### 3. =========== BUILD TARGETS ============ ####
