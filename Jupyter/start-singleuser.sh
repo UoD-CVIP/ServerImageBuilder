@@ -39,11 +39,16 @@ fi
 # `conda` installs *EVERYTHING* under `/opt/conda` so we have
 # to check where the `jupyter` binary is actually installed
 # Pytorch == conda, tensorflow == pip
-if [[ ! -f /usr/local/bin/jupyter ]]; then
-  cmdpath=/opt/conda/bin
-else
-  cmdpath=/usr/local/bin
-fi
+#if [[ ! -f /usr/local/bin/jupyter ]]; then
+#  cmdpath=/opt/conda/bin
+#else
+#  cmdpath=/usr/local/bin
+#fi
+
+# == MR 20210630
+# we're now using conda by default for the images, so
+# everything should be available here.
+cmdpath=/opt/conda/bin
 
 if [ ! -z "$JUPYTER_ENABLE_LAB" ]; then
   NOTEBOOK_BIN="${cmdpath}/jupyter labhub"
