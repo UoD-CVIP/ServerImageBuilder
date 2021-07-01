@@ -254,7 +254,13 @@ USER ${NB_USER}
 # ===> jbindinga/java-notebook
 FROM base as java
 USER root
+# weird bugfix
 RUN rm -rf /home/${NB_USER}/.jupyter/
+# also install scala seeing as we have a JVM available
+# N.B. main class bug https://github.com/almond-sh/almond/issues/835
+RUN curl -Lo coursier https://git.io/coursier-cli \
+ && chmod +x coursier \
+ && ./coursier launch --fork almond -M almond.ScalaKernel -- --install
 USER ${NB_USER}
 
 ####################################################################################################
@@ -270,7 +276,7 @@ USER root
 
 RUN cd /opt/matlab/*/extern/engines/python/ \
  && /opt/conda/bin/python3 setup.py install
-RUN ${CONDA_BIN} install -c conda-forge matlab_kernel
+RUN ${CONDA_PIP} install matlab_kernel
 
 # Set up the licensing.
 # See "Network License" under "Run Options" from here:
