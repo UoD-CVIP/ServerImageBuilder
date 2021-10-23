@@ -3,14 +3,12 @@ name: Matlab production images
 on:
   push:
     branches: master
-    paths-ignore:
-      - 'README.md'
-      - '.gitignore'
-      - ./.github/workflows/all.yml
-      - '!.github/workflows/prod-matlab.yml'
-      - 'images/base/*.all'
-      - '!images/base/matlab*.prod'
-
+    paths:
+      - Dockerfile
+      - Jupyter/**
+      - build.sh
+      - images/base/matlab_image_tags.txt.prod
+      - .github/workflows/prod-matlab.yml
   workflow_dispatch:
 
 jobs:

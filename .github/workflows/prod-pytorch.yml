@@ -3,13 +3,12 @@ name: Pytorch production images
 on:
   push:
     branches: master
-    paths-ignore:
-      - 'README.md'
-      - '.gitignore'
-      - ./.github/workflows/all.yml
-      - '!.github/workflows/prod-pytorch.yml'
-      - 'images/base/*.all'
-      - '!images/base/pytorch*.prod'
+    paths:
+      - Dockerfile
+      - Jupyter/**
+      - build.sh
+      - images/base/pytorch_image_tags.txt.prod
+      - .github/workflows/prod-pytorch.yml
   workflow_dispatch:
 
 jobs:

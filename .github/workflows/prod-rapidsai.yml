@@ -3,12 +3,12 @@ name: RapidsAI production images
 on:
   push:
     branches: master
-    paths-ignore:
-      - 'README.md'
-      - '.gitignore'
-      - '!.github/workflows/prod-rapidsai.yml'
-      - 'images/base/*.all'
-      - '!images/base/rapidsai*.prod'
+    paths:
+      - Dockerfile
+      - Jupyter/**
+      - build.sh
+      - images/base/rapidsai_image_tags.txt.prod
+      - .github/workflows/prod-rapidsai.yml
   workflow_dispatch:
 
 jobs:

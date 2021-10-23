@@ -3,13 +3,12 @@ name: CPU production images
 on:
   push:
     branches: master
-    paths-ignore:
-      - 'README.md'
-      - '.gitignore'
-      - ./.github/workflows/all.yml
-      - '!.github/workflows/prod-cpu.yml'
-      - 'images/base/*.all'
-      - '!images/base/cpu*.prod'
+    paths:
+      - Dockerfile
+      - Jupyter/**
+      - build.sh
+      - images/base/cpu_image_tags.txt.prod
+      - .github/workflows/prod-cpu.yml
   workflow_dispatch:
 
 jobs:

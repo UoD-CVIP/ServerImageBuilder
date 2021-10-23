@@ -3,14 +3,12 @@ name: Tensorflow production images
 on:
   push:
     branches: master
-    paths-ignore:
-      - 'README.md'
-      - '.gitignore'
-      - './.github/workflows/all.yml'
-      - '!.github/workflows/prod-tensorflow.yml'
-      - 'images/base/*.all'
-      - '!images/base/tensorflow*.prod'
-
+    paths:
+      - Dockerfile
+      - Jupyter/**
+      - build.sh
+      - images/base/tensorflow_image_tags.txt.prod
+      - .github/workflows/prod-tensorflow.yml
   workflow_dispatch:
 
 jobs:

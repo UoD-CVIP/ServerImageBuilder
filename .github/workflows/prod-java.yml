@@ -3,14 +3,12 @@ name: Java production images
 on:
   push:
     branches: master
-    paths-ignore:
-      - 'README.md'
-      - '.gitignore'
-      - ./.github/workflows/all.yml
-      - '!.github/workflows/prod-java.yml'
-      - 'images/base/*.all'
-      - '!images/base/java*.prod'
-
+    paths:
+      - Dockerfile
+      - Jupyter/**
+      - build.sh
+      - images/base/java_image_tags.txt.prod
+      - .github/workflows/prod-java.yml
   workflow_dispatch:
 
 jobs:
