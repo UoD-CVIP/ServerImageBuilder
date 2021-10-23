@@ -1,17 +1,15 @@
-name: Production images
+name: All images
 
 on:
   push:
     branches: master
-    paths-ignore:
-      - 'README.md'
-      - '.gitignore'
-      - ./.github/workflows/all.yml
+    paths:
       - './images/base/**.all'
+      - './.github/workflows/all.yml'
   workflow_dispatch:
 
 jobs:
-  docker-prod-build-n-push:
+  docker-all-build-n-push:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -29,7 +27,7 @@ jobs:
           username: $oauthtoken
           password: ${{ secrets.NVIDIA_CONTAINER_REGISTRY_KEY }}
 
-      - name: Run builds + pushes for *prod* images
+      - name: Run builds + pushes for *all* images
         run: |
-          chmod +x ./build.sh
-          ./build.sh prod all ${{ secrets.MLM_LICENSE_FILE }}
+          cd ./ServerImageBuilder
+          ./build.sh all all ${{ secrets.MLM_LICENSE_FILE }}
