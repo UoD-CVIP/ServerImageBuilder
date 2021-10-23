@@ -31,6 +31,4 @@ jobs:
           password: ${{ secrets.NVIDIA_CONTAINER_REGISTRY_KEY }}
 
       - name: Run builds + pushes for *prod* images
-        run: |
-          cd ./ServerImageBuilder
-          ./build.sh all prod ${{ secrets.MLM_LICENSE_FILE }}
+        run: ./build.sh all prod ${{ secrets.MLM_LICENSE_FILE }}
