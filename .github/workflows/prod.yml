@@ -3,12 +3,9 @@ name: Production images
 on:
   push:
     branches: master
-    paths:
-      - './Dockerfile'
-      - './images/base/**.prod'
-      - './build.sh'
-      - './Jupyter/**'
-      - './.github/workflows/prod.yml'
+    paths-ignore:
+      - 'README.md'
+      - '.gitignore'
   workflow_dispatch:
 
 jobs:
