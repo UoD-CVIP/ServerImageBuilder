@@ -10,7 +10,6 @@ on:
       - '!.github/workflows/prod-cpu.yml'
       - 'images/base/*.all'
       - '!images/base/cpu*.prod'
-
   workflow_dispatch:
 
 jobs:
