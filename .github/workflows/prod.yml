@@ -29,6 +29,5 @@ jobs:
 
       - name: Run builds + pushes for *prod* images
         run: |
-          ls -al ./
           chmod +x ./build.sh
-          ./build.sh all prod ${{ secrets.MLM_LICENSE_FILE }}
+          ./build.sh prod all ${{ secrets.MLM_LICENSE_FILE }}
