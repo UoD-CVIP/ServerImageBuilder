@@ -1,0 +1,36 @@
+name: Production images
+
+on:
+  push:
+    branches: master
+    paths-ignore:
+      - 'README.md'
+      - '.gitignore'
+      - ./.github/workflows/all.yml
+      - './images/base/**.all'
+      - '!./images/base/matlab**'
+  workflow_dispatch:
+
+jobs:
+  prod-matlab:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to uodcvip DockerHub organisation
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.UOD_CVIP_DOCKERHUB_USERNAME }}
+          password: ${{ secrets.UOD_CVIP_DOCKERHUB_PASSWORD }}
+
+      - name: Login to NVIDIA Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: nvcr.io
+          username: $oauthtoken
+          password: ${{ secrets.NVIDIA_CONTAINER_REGISTRY_KEY }}
+
+      - name: Run builds + pushes for *prod* images
+        run: |
+          chmod +x ./build.sh
+          ./build.sh prod matlab ${{ secrets.MLM_LICENSE_FILE }}
