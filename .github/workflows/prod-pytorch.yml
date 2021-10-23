@@ -1,4 +1,4 @@
-name: Production images
+name: Pytorch production images
 
 on:
   push:

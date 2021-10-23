@@ -1,4 +1,4 @@
-name: Production images
+name: Matlab production images
 
 on:
   push:

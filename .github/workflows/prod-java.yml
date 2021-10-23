@@ -1,4 +1,4 @@
-name: Production images
+name: Java production images
 
 on:
   push:
