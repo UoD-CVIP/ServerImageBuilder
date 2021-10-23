@@ -27,7 +27,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: nvcr.io
-          username: \$oauthtoken
+          username: $oauthtoken
           password: ${{ secrets.NVIDIA_CONTAINER_REGISTRY_KEY }}
 
       - name: Run builds + pushes for *prod* images
