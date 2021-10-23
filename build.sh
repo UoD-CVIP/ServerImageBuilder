@@ -1,33 +1,11 @@
 #!/usr/bin/env bash
 
 function info () {
-  echo $(date)" --- ${1}" | logger
+  echo "$(date) --- ${1}" | logger
 }
 
 function logger () {
   tee build.log
-}
-
-function remove_images () {
-  info "Attempting to remove image ${1}"
-  docker rmi $( docker images | grep ${1} | awk '{print $3}') \
-    && info "${1} image removed" \
-    || info "${1} image NOT removed, trying to force..." \
-  || docker rmi -f $( docker images | grep ${1} | awk '{print $3}') \
-    && info "${1} image removed" \
-    || info "${1} image not removed, you'll have to remove it manually."
-}
-
-function clean_up_images () {
-  info "Running clean up"
-  docker container prune -f
-  docker image prune -f
-  for image in ${@}
-  do
-    remove_images $image
-  done
-  docker builder prune --force
-  info "Finished clean up"
 }
 
 function populate_image_list () {
@@ -58,15 +36,33 @@ function build_loop () {
       --tag ${CVIP_IMAGE} \
       --build-arg BASE_CONTAINER=${BASE_IMAGE} \
       --build-arg MLM_LICENSE="${LICENSE}" \
-      ./ \
-    && info "+ Build SUCCESS for ${CVIP_IMAGE}" \
-    || info "+ Build FAILURE for ${CVIP_IMAGE}"
+        ./ \
+      && info "+ Build SUCCESS for ${CVIP_IMAGE}" \
+      || info "+ Build FAILURE for ${CVIP_IMAGE}"
 
     docker push ${CVIP_IMAGE} \
-    && info "+ ${CVIP_IMAGE} push success" \
-    || info "+ ${CVIP_IMAGE} push failure"
+      && info "+ ${CVIP_IMAGE} push success" \
+      || info "+ ${CVIP_IMAGE} push failure"
 
-    clean_up_images ${BASE_IMAGE}
+    info "+ Cleaning up"
+    info "++ Pruning"
+    docker container prune -f
+    docker image prune -f
+
+    info "++ Removing"
+    docker image rm -f ${CVIP_IMAGE}
+    docker image rm -f ${BASE_IMAGE}
+
+    info "++ Lingering image clean up"
+    for image in $(docker images | tail -n+2 | awk '{print $3}' | xargs)
+    do
+      docker rm -f $image
+    done
+
+    info "++ System clean up"
+    docker builder prune -f
+    docker system prune -f
+    info "+ Finished clean up"
 
   done
 }
