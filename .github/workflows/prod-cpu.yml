@@ -1,4 +1,4 @@
-name: CPU production images
+name: CPU production image
 
 on:
   push:
