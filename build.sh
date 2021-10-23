@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 function info () {
   echo "$(date) --- ${1}" | logger
 }
@@ -111,6 +113,7 @@ function build_setup () {
     fi
 
     build_loop
+    system_cleanup
 }
 
 function system_cleanup () {
