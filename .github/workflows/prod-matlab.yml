@@ -7,9 +7,10 @@ on:
       - 'README.md'
       - '.gitignore'
       - ./.github/workflows/all.yml
-      - '!./.github/workflows/prod-matlab.yml'
-      - './images/base/**.all'
-      - '!./images/base/matlab**'
+      - '!.github/workflows/prod-matlab.yml'
+      - 'images/base/*.all'
+      - '!images/base/matlab*.prod'
+
   workflow_dispatch:
 
 jobs:

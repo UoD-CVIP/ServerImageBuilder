@@ -7,9 +7,10 @@ on:
       - 'README.md'
       - '.gitignore'
       - ./.github/workflows/all.yml
-      - '!./.github/workflows/prod-java.yml'
-      - './images/base/**.all'
-      - '!./images/base/java**'
+      - '!.github/workflows/prod-java.yml'
+      - 'images/base/*.all'
+      - '!images/base/java*.prod'
+
   workflow_dispatch:
 
 jobs:

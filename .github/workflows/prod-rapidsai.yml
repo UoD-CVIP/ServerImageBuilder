@@ -6,10 +6,9 @@ on:
     paths-ignore:
       - 'README.md'
       - '.gitignore'
-      - ./.github/workflows/all.yml
-      - '!./.github/workflows/prod-rapidsai.yml'
-      - './images/base/**.all'
-      - '!./images/base/cpu**'
+      - '!.github/workflows/prod-rapidsai.yml'
+      - 'images/base/*.all'
+      - '!images/base/rapidsai*.prod'
   workflow_dispatch:
 
 jobs:

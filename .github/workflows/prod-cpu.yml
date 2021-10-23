@@ -7,9 +7,10 @@ on:
       - 'README.md'
       - '.gitignore'
       - ./.github/workflows/all.yml
-      - '!./.github/workflows/prod-cpu.yml'
-      - './images/base/**.all'
-      - '!./images/base/cpu**'
+      - '!.github/workflows/prod-cpu.yml'
+      - 'images/base/*.all'
+      - '!images/base/cpu*.prod'
+
   workflow_dispatch:
 
 jobs:
