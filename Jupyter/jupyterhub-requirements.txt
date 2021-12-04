@@ -5,3 +5,4 @@ jupyter_core
 jupyterlab==1.2.1
 ipython
 ipykernel
+jupyter_nvdashboard
