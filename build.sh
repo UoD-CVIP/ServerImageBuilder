@@ -38,13 +38,9 @@ function build_loop () {
       --tag ${CVIP_IMAGE} \
       --build-arg BASE_CONTAINER=${BASE_IMAGE} \
       --build-arg MLM_LICENSE="${LICENSE}" \
-        ./ \
-      && info "+ Build SUCCESS for ${CVIP_IMAGE}" \
-      || info "+ Build FAILURE for ${CVIP_IMAGE}"
+        ./
 
-    docker push ${CVIP_IMAGE} \
-      && info "+ ${CVIP_IMAGE} push success" \
-      || info "+ ${CVIP_IMAGE} push failure"
+    docker push ${CVIP_IMAGE}
 
     info "+ Cleaning up"
     info "++ Pruning"
