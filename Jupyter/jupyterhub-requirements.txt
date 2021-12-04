@@ -1,8 +1,8 @@
 notebook
 jupyter
-jupyterhub==1.1.0
+jupyterhub>=1.1.0<=1.2.0
 jupyter_core
-jupyterlab==1.2.1
+jupyterlab>=1.2.1<=1.3.0
 ipython
 ipykernel
 jupyterlab_nvdashboard
