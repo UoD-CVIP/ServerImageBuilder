@@ -2,7 +2,7 @@ notebook
 jupyter
 jupyterhub==1.1.0
 jupyter_core
-jupyterlab==1.2.1
+jupyterlab==1.2.21
 ipython
 ipykernel
 jupyterlab_nvdashboard
