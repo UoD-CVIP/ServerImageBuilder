@@ -1,3 +1,9 @@
+[![Tensorflow](https://github.com/UoD-CVIP/ServerImageBuilder/actions/workflows/prod-tensorflow.yml/badge.svg)](https://github.com/UoD-CVIP/ServerImageBuilder/actions/workflows/prod-tensorflow.yml)
+[![Pytorch](https://github.com/UoD-CVIP/ServerImageBuilder/actions/workflows/prod-pytorch.yml/badge.svg)](https://github.com/UoD-CVIP/ServerImageBuilder/actions/workflows/prod-pytorch.yml)
+[![RapidsAI](https://github.com/UoD-CVIP/ServerImageBuilder/actions/workflows/prod-rapidsai.yml/badge.svg)](https://github.com/UoD-CVIP/ServerImageBuilder/actions/workflows/prod-rapidsai.yml)
+[![jupyter/datascience and c++](https://github.com/UoD-CVIP/ServerImageBuilder/actions/workflows/prod-cpu.yml/badge.svg)](https://github.com/UoD-CVIP/ServerImageBuilder/actions/workflows/prod-cpu.yml)
+[![Java](https://github.com/UoD-CVIP/ServerImageBuilder/actions/workflows/prod-java.yml/badge.svg)](https://github.com/UoD-CVIP/ServerImageBuilder/actions/workflows/prod-java.yml)
+
 # ServerImageBuilder
 The repo builds the docker images used as workspace containers for JupyterHub on the CVIP servers in Computing.
 
